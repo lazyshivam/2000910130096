@@ -5,6 +5,8 @@ const cors=require('cors');
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+
 // {
 //     "clientID": "f04fa6a1-3f44-4ad0-a652-78eb8e3f0570",
 //     "clientSecret": "fYbgDOqiPLemjnbt"
@@ -53,11 +55,33 @@ app.post('/auth', async (req, res) => {
       });
   
       // Store the access token from the response
-      accessToken = response.data.access_token;
       res.json(response.data);
     } catch (error) {
       console.error('Error during authorization:', error.message);
       res.status(500).json({ error: 'Authorization failed' });
+    }
+  });
+
+  // Route to fetch train details
+app.get('/trains', async (req, res) => {
+    const access_token=req.header('access_token');
+    try {
+    
+      if (!access_token) {
+        return res.status(401).json({ error: 'Unauthorized. Please obtain an access token first.' });
+      }
+  
+      // Make the request to John Doe Railway Server with the access token in the headers
+      const response = await axios.get(trainsURL, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+  
+      res.json(response.data);
+    } catch (error) {
+      console.error('Error while fetching train details:', error.message);
+      res.status(500).json({ error: 'Failed to fetch train details' });
     }
   });
 // Start the server
